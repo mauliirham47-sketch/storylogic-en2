@@ -1,0 +1,1159 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>StoryLogic EN - Belajar Bahasa Inggris Lewat Soal Cerita</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Plus Jakarta Sans & Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Plus Jakarta Sans', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Kustomisasi gaya untuk interaksi kata dan animasi mobile-first */
+        body {
+            background-color: #f1f5f9;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+
+        .word-token {
+            display: inline-block;
+            cursor: pointer;
+            border-radius: 6px;
+            padding: 1px 4px;
+            margin: 1px 0;
+            transition: all 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
+            border-bottom: 1.5px dashed #cbd5e1;
+        }
+
+        .word-token:hover {
+            background-color: #f1f5f9;
+            border-bottom-color: #6366f1;
+        }
+
+        .word-token:active {
+            transform: scale(0.95);
+        }
+
+        /* Status kata sedang diterjemahkan (aktif) */
+        .word-token.translated {
+            background-color: #fef08a; /* Kuning cerah lembut */
+            color: #854d0e;
+            font-weight: 700;
+            border-bottom: 2px solid #eab308;
+            padding: 1px 7px;
+            box-shadow: 0 2px 6px rgba(234, 179, 8, 0.25);
+            transform: translateY(-1px) scale(1.03);
+        }
+
+        /* Variasi di dalam tombol pilihan ganda saat terpilih */
+        .option-selected .word-token {
+            border-bottom-color: rgba(255, 255, 255, 0.4);
+        }
+        .option-selected .word-token:hover {
+            background-color: rgba(255, 255, 255, 0.15);
+        }
+        .option-selected .word-token.translated {
+            background-color: #fde047;
+            color: #713f12;
+            border-bottom-color: #ca8a04;
+        }
+
+        /* Animasi masuk kartu */
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(14px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-slide-up {
+            animation: slideUp 0.3s ease-out forwards;
+        }
+
+        /* Menyembunyikan scrollbar tapi tetap bisa scroll */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex justify-center items-start sm:items-center sm:py-6 text-slate-800">
+
+    <!-- Container Utama Mobile-First (Max-width 480px) -->
+    <div id="app-shell" class="w-full max-w-[480px] min-h-screen sm:min-h-[820px] sm:h-[820px] bg-white sm:rounded-[32px] sm:shadow-2xl sm:border sm:border-slate-200/80 flex flex-col overflow-hidden relative">
+
+        <!-- ==========================================
+             1. HALAMAN BERANDA / PILIH LEVEL
+             ========================================== -->
+        <div id="screen-home" class="flex-1 flex flex-col justify-between p-6 overflow-y-auto no-scrollbar">
+            <div>
+                <!-- Header Brand -->
+                <div class="flex items-center justify-between mb-6 pt-2">
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-10 h-10 rounded-2xl bg-brand-600 text-white flex items-center justify-center shadow-lg shadow-brand-500/30 font-display font-extrabold text-xl">
+                            SL
+                        </div>
+                        <div>
+                            <h1 class="font-display font-bold text-lg text-slate-900 leading-tight">StoryLogic EN</h1>
+                            <p class="text-xs text-slate-500 font-medium">Baca, Pahami, Pecahkan Logikanya</p>
+                        </div>
+                    </div>
+                    <span class="px-3 py-1 rounded-full bg-amber-100 text-amber-800 text-xs font-semibold">
+                        12 Cerita
+                    </span>
+                </div>
+
+                <!-- Hero Banner -->
+                <div class="bg-gradient-to-br from-brand-600 to-indigo-700 rounded-3xl p-6 text-white shadow-xl shadow-brand-500/20 mb-6 relative overflow-hidden">
+                    <div class="relative z-10">
+                        <span class="inline-block px-2.5 py-1 rounded-lg bg-white/20 backdrop-blur-sm text-xs font-semibold mb-3">
+                            ✨ Fitur Ketuk-Kata Instan
+                        </span>
+                        <h2 class="font-display font-bold text-2xl leading-snug mb-2">
+                            Belajar Bahasa Inggris Tanpa Buka Kamus
+                        </h2>
+                        <p class="text-indigo-100 text-sm leading-relaxed mb-4">
+                            Pecahkan teka-teki cerita seru. Lupa arti sebuah kata? Cukup ketuk kata tersebut untuk melihat artinya langsung di tempat!
+                        </p>
+                        <!-- Demo Interaktif Mini di Beranda -->
+                        <div class="bg-white/10 backdrop-blur-md rounded-2xl p-3.5 border border-white/20">
+                            <p class="text-[11px] uppercase tracking-wider text-indigo-200 font-semibold mb-1.5">Coba ketuk kata di bawah ini:</p>
+                            <div id="demo-sentence" class="text-base font-medium leading-relaxed text-white"></div>
+                        </div>
+                    </div>
+                    <!-- Dekorasi lingkaran -->
+                    <div class="w-32 h-32 rounded-full bg-white/10 absolute -right-8 -bottom-8"></div>
+                    <div class="w-20 h-20 rounded-full bg-indigo-400/20 absolute right-12 -top-6"></div>
+                </div>
+
+                <!-- Pilihan Mode / Level -->
+                <h3 class="font-display font-bold text-slate-800 text-base mb-3">Pilih Tingkat Kesulitan</h3>
+                <div class="space-y-3">
+                    <button onclick="startQuiz('all')" class="w-full text-left p-4 rounded-2xl border-2 border-brand-600 bg-brand-50/60 hover:bg-brand-50 transition-all flex items-center justify-between group active:scale-[0.99]">
+                        <div class="flex items-center gap-3.5">
+                            <div class="w-11 h-11 rounded-xl bg-brand-600 text-white flex items-center justify-center font-bold text-lg shadow-sm">
+                                🚀
+                            </div>
+                            <div>
+                                <div class="font-display font-bold text-slate-900 text-base">Semua Level (12 Soal)</div>
+                                <div class="text-xs text-slate-500">Campuran mudah, menengah & menantang</div>
+                            </div>
+                        </div>
+                        <svg class="w-5 h-5 text-brand-600 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+                    </button>
+
+                    <button onclick="startQuiz('easy')" class="w-full text-left p-4 rounded-2xl border border-slate-200 bg-white hover:border-emerald-400 hover:bg-emerald-50/30 transition-all flex items-center justify-between group active:scale-[0.99]">
+                        <div class="flex items-center gap-3.5">
+                            <div class="w-11 h-11 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-lg">
+                                🌱
+                            </div>
+                            <div>
+                                <div class="font-display font-bold text-slate-900 text-base">Pemula (4 Soal)</div>
+                                <div class="text-xs text-slate-500">Kosakata sehari-hari & logika dasar</div>
+                            </div>
+                        </div>
+                        <svg class="w-5 h-5 text-slate-400 group-hover:text-emerald-600 group-hover:translate-x-1 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+                    </button>
+
+                    <button onclick="startQuiz('medium')" class="w-full text-left p-4 rounded-2xl border border-slate-200 bg-white hover:border-amber-400 hover:bg-amber-50/30 transition-all flex items-center justify-between group active:scale-[0.99]">
+                        <div class="flex items-center gap-3.5">
+                            <div class="w-11 h-11 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center font-bold text-lg">
+                                🧩
+                            </div>
+                            <div>
+                                <div class="font-display font-bold text-slate-900 text-base">Menengah (4 Soal)</div>
+                                <div class="text-xs text-slate-500">Cerita dua langkah & eliminasi daftar</div>
+                            </div>
+                        </div>
+                        <svg class="w-5 h-5 text-slate-400 group-hover:text-amber-600 group-hover:translate-x-1 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+                    </button>
+
+                    <button onclick="startQuiz('hard')" class="w-full text-left p-4 rounded-2xl border border-slate-200 bg-white hover:border-rose-400 hover:bg-rose-50/30 transition-all flex items-center justify-between group active:scale-[0.99]">
+                        <div class="flex items-center gap-3.5">
+                            <div class="w-11 h-11 rounded-xl bg-rose-100 text-rose-700 flex items-center justify-center font-bold text-lg">
+                                🔥
+                            </div>
+                            <div>
+                                <div class="font-display font-bold text-slate-900 text-base">Detektif (4 Soal)</div>
+                                <div class="text-xs text-slate-500">Teka-teki urutan, waktu & kondisi</div>
+                            </div>
+                        </div>
+                        <svg class="w-5 h-5 text-slate-400 group-hover:text-rose-600 group-hover:translate-x-1 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+                    </button>
+                </div>
+            </div>
+
+            <p class="text-center text-xs text-slate-400 mt-6">
+                Ketuk satu kata untuk menerjemahkan • Ketuk kata lain untuk berpindah
+            </p>
+        </div>
+
+        <!-- ==========================================
+             2. HALAMAN KUIS / SOAL CERITA
+             ========================================== -->
+        <div id="screen-quiz" class="hidden flex-1 flex flex-col h-full overflow-hidden">
+            <!-- Top Bar: Tombol Kembali, Progress Bar & Skor -->
+            <div class="px-5 pt-4 pb-3 bg-white border-b border-slate-100 shrink-0">
+                <div class="flex items-center justify-between gap-3 mb-2.5">
+                    <button onclick="goHome()" class="w-9 h-9 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition-colors active:scale-95" title="Kembali ke Beranda">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M15 19l-7-7 7-7"/></svg>
+                    </button>
+
+                    <!-- Progress Bar -->
+                    <div class="flex-1">
+                        <div class="flex justify-between text-xs font-semibold text-slate-500 mb-1">
+                            <span id="question-counter">Soal 1 / 12</span>
+                            <span id="difficulty-badge" class="px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-700 text-[10px] uppercase tracking-wide">Pemula</span>
+                        </div>
+                        <div class="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden">
+                            <div id="progress-bar" class="h-full bg-brand-600 rounded-full transition-all duration-300" style="width: 8.33%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Skor -->
+                    <div class="px-3 py-1.5 rounded-xl bg-amber-50 border border-amber-200/80 flex items-center gap-1.5">
+                        <span class="text-sm">⭐</span>
+                        <span id="score-display" class="font-display font-bold text-sm text-amber-800">0</span>
+                    </div>
+                </div>
+
+                <!-- Petunjuk Tap-to-Translate -->
+                <div class="flex items-center justify-between bg-indigo-50/90 border border-indigo-100 rounded-xl px-3 py-2 text-xs text-indigo-800">
+                    <div class="flex items-center gap-2">
+                        <span class="text-base">👆</span>
+                        <span class="font-medium">Ketuk kata bahasa Inggris mana saja untuk melihat artinya</span>
+                    </div>
+                    <button id="btn-reset-word" onclick="clearActiveTranslation()" class="hidden text-[11px] font-bold text-indigo-600 underline shrink-0 ml-2">
+                        Reset
+                    </button>
+                </div>
+            </div>
+
+            <!-- Konten Scrollable: Kartu Cerita, Pertanyaan & Pilihan Ganda -->
+            <div id="quiz-scroll-area" class="flex-1 overflow-y-auto px-5 py-4 space-y-4 no-scrollbar">
+                <!-- Kartu Cerita -->
+                <div id="story-card" class="bg-slate-50 border border-slate-200/90 rounded-3xl p-5 shadow-sm animate-slide-up">
+                    <div class="flex items-center gap-2 mb-2.5">
+                        <span id="story-emoji" class="text-xl">🍽️</span>
+                        <span id="story-title" class="text-xs font-bold uppercase tracking-wider text-slate-400">Cerita #1</span>
+                    </div>
+                    <!-- Teks Cerita Interaktif -->
+                    <div id="story-text" class="text-[17px] leading-[1.75] text-slate-800 font-medium"></div>
+                </div>
+
+                <!-- Kotak Pertanyaan -->
+                <div class="px-1 animate-slide-up" style="animation-delay: 0.05s;">
+                    <div class="text-xs font-bold uppercase tracking-wider text-brand-600 mb-1">Pertanyaan:</div>
+                    <div id="question-text" class="text-[17px] leading-[1.6] font-display font-bold text-slate-900"></div>
+                </div>
+
+                <!-- Pilihan Ganda (A, B, C, D) -->
+                <div id="options-container" class="space-y-2.5 pt-1 animate-slide-up" style="animation-delay: 0.1s;"></div>
+
+                <!-- Kartu Feedback & Penjelasan (Muncul setelah menjawab) -->
+                <div id="feedback-box" class="hidden rounded-2xl p-4 border animate-slide-up">
+                    <div class="flex items-start gap-3">
+                        <div id="feedback-icon" class="w-8 h-8 rounded-full flex items-center justify-center shrink-0 text-base font-bold mt-0.5"></div>
+                        <div class="flex-1">
+                            <h4 id="feedback-title" class="font-display font-bold text-base mb-1"></h4>
+                            <p id="feedback-explanation" class="text-sm leading-relaxed"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Spacer bawah agar tidak tertutup tombol sticky -->
+                <div class="h-4"></div>
+            </div>
+
+            <!-- Bottom Action Bar -->
+            <div id="bottom-action-bar" class="hidden p-4 bg-white border-t border-slate-100 shrink-0">
+                <button id="btn-next" onclick="nextQuestion()" class="w-full py-3.5 px-6 rounded-2xl bg-brand-600 hover:bg-brand-700 text-white font-display font-bold text-base shadow-lg shadow-brand-500/30 transition-all active:scale-[0.98] flex items-center justify-center gap-2">
+                    <span id="btn-next-text">Soal Berikutnya</span>
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- ==========================================
+             3. HALAMAN RINGKASAN HASIL AKHIR
+             ========================================== -->
+        <div id="screen-result" class="hidden flex-1 flex flex-col justify-between p-6 overflow-y-auto no-scrollbar">
+            <div class="text-center pt-4">
+                <div id="result-trophy" class="w-24 h-24 mx-auto rounded-3xl bg-amber-100 text-5xl flex items-center justify-center shadow-inner mb-5 animate-bounce">
+                    🏆
+                </div>
+                <span class="px-3 py-1 rounded-full bg-brand-50 text-brand-700 text-xs font-bold uppercase tracking-wider">
+                    Sesi Selesai!
+                </span>
+                <h2 id="result-heading" class="font-display font-extrabold text-2xl text-slate-900 mt-3 mb-1">
+                    Luar Biasa!
+                </h2>
+                <p id="result-subtext" class="text-sm text-slate-500 mb-6">
+                    Kemampuan membaca dan logika bahasa Inggrismu sangat tajam.
+                </p>
+
+                <!-- Kartu Statistik Skor -->
+                <div class="bg-slate-50 border border-slate-200/80 rounded-3xl p-5 mb-6">
+                    <div class="grid grid-cols-3 divide-x divide-slate-200">
+                        <div class="px-2">
+                            <div class="text-xs text-slate-500 font-medium mb-1">Skor Total</div>
+                            <div id="final-score" class="font-display font-extrabold text-2xl text-brand-600">100</div>
+                        </div>
+                        <div class="px-2">
+                            <div class="text-xs text-slate-500 font-medium mb-1">Benar</div>
+                            <div id="final-correct" class="font-display font-extrabold text-2xl text-emerald-600">10/12</div>
+                        </div>
+                        <div class="px-2">
+                            <div class="text-xs text-slate-500 font-medium mb-1">Akurasi</div>
+                            <div id="final-accuracy" class="font-display font-extrabold text-2xl text-amber-600">83%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ringkasan Jawaban Per Soal -->
+                <div class="text-left">
+                    <h3 class="font-display font-bold text-sm text-slate-700 mb-2.5">Ringkasan Jawaban:</h3>
+                    <div id="result-review-list" class="space-y-2 max-h-[240px] overflow-y-auto pr-1"></div>
+                </div>
+            </div>
+
+            <!-- Tombol Aksi Akhir -->
+            <div class="space-y-2.5 pt-6">
+                <button onclick="restartCurrentQuiz()" class="w-full py-3.5 px-6 rounded-2xl bg-brand-600 hover:bg-brand-700 text-white font-display font-bold text-base shadow-lg shadow-brand-500/25 transition-all active:scale-[0.98]">
+                    Ulangi Level Ini
+                </button>
+                <button onclick="goHome()" class="w-full py-3.5 px-6 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-display font-bold text-base transition-all active:scale-[0.98]">
+                    Pilih Level Lain
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // =========================================================================
+        // 1. KAMUS TERJEMAHAN KATA PER KATA (ENGLISH -> INDONESIA - 100% LENGKAP)
+        // =========================================================================
+        // Semua kunci disimpan dalam huruf kecil tanpa tanda baca untuk pencocokan akurat.
+        const DICTIONARY = {
+            // Kata Ganti & Kepemilikan
+            "i": "saya", "you": "kamu", "he": "dia (lk)", "she": "dia (pr)", "it": "itu",
+            "we": "kita", "they": "mereka", "them": "mereka", "him": "dia (lk)",
+            "his": "miliknya", "her": "miliknya", "hers": "miliknya",
+            "their": "milik mereka", "my": "milikku", "your": "milikmu", "our": "milik kita",
+            "everyone": "semua orang", "someone": "seseorang", "nobody": "tak seorang pun",
+            "none": "tidak ada", "all": "semua", "each": "setiap", "every": "setiap",
+            "both": "keduanya", "other": "lainnya", "another": "yang lain",
+
+            // Nama Orang, Kota & Tempat
+            "deni": "Deni", "siti": "Siti", "agus": "Agus", "rina": "Rina", "budi": "Budi",
+            "maya": "Maya", "andi": "Andi", "tari": "Tari", "lisa": "Lisa", "kevin": "Kevin",
+            "bandung": "Bandung", "jakarta": "Jakarta",
+            "house": "rumah", "home": "rumah", "school": "sekolah", "market": "pasar",
+            "kitchen": "dapur", "library": "perpustakaan", "park": "taman", "office": "kantor",
+            "shop": "toko", "store": "toko", "bakery": "toko roti", "cafe": "kafe",
+            "restaurant": "restoran", "hospital": "rumah sakit", "station": "stasiun",
+            "zoo": "kebun binatang", "classroom": "ruang kelas", "room": "ruangan",
+            "table": "meja", "sofa": "sofa", "cage": "kandang", "door": "pintu",
+            "front": "depan", "whiteboard": "papan tulis", "top": "bagian atas",
+            "pocket": "saku", "bag": "tas", "box": "kotak", "boxes": "kotak-kotak",
+            "fridge": "kulkas", "basket": "keranjang", "outside": "di luar", "inside": "di dalam",
+            "way": "jalan / perjalanan",
+
+            // Kata Kerja (Verbs)
+            "brings": "membawa", "bring": "membawa", "brought": "membawa",
+            "goes": "pergi", "go": "pergi", "going": "akan pergi", "went": "pergi",
+            "walk": "berjalan kaki", "walks": "berjalan", "walking": "sedang berjalan",
+            "pick": "mengambil", "picks": "mengambil", "up": "ambil",
+            "take": "mengambil", "takes": "mengambil", "took": "mengambil", "taken": "diambil",
+            "want": "ingin", "wants": "ingin", "wanted": "ingin",
+            "need": "butuh", "needs": "membutuhkan", "needed": "membutuhkan",
+            "have": "punya", "has": "memiliki", "had": "memiliki",
+            "buy": "membeli", "buys": "membeli", "bought": "membeli",
+            "eat": "makan", "eats": "makan", "ate": "makan", "eating": "sedang makan",
+            "drink": "minum", "drinks": "minum", "drank": "minum",
+            "give": "memberi", "gives": "memberikan", "gave": "memberikan",
+            "put": "menaruh", "puts": "menaruh", "putting": "menaruh",
+            "left": "meninggalkan", "leave": "berangkat", "leaves": "berangkat", "leaving": "berangkat",
+            "find": "menemukan", "finds": "menemukan", "found": "menemukan",
+            "look": "lihat", "looks": "melihat", "looking": "mencari",
+            "see": "melihat", "sees": "melihat", "saw": "melihat",
+            "read": "membaca", "reads": "membaca", "reading": "sedang membaca",
+            "write": "menulis", "writes": "menulis", "draw": "menggambar",
+            "cook": "memasak", "cooks": "memasak", "make": "membuat", "makes": "membuat",
+            "wear": "memakai", "wears": "memakai", "wearing": "memakai",
+            "carry": "membawa", "carries": "membawa", "carrying": "membawa",
+            "open": "membuka", "opens": "membuka", "close": "menutup", "closes": "menutup",
+            "lock": "mengunci", "locked": "terkunci",
+            "arrive": "tiba", "arrives": "tiba", "arrived": "tiba",
+            "finish": "selesai", "finishes": "menyelesaikan", "finished": "selesai",
+            "forget": "lupa", "forgets": "lupa", "forgot": "lupa",
+            "remember": "ingat", "remembers": "ingat",
+            "borrow": "meminjam", "borrows": "meminjam", "borrowed": "meminjam",
+            "return": "mengembalikan", "returns": "mengembalikan",
+            "check": "memeriksa", "checks": "memeriksa", "checked": "memeriksa",
+            "order": "memesan", "orders": "memesan", "ordered": "memesan",
+            "contain": "berisi", "contains": "berisi", "contained": "berisi",
+            "clean": "membersihkan", "cleans": "membersihkan",
+            "ask": "meminta", "asks": "meminta", "asked": "meminta",
+            "play": "bermain", "plays": "bermain", "playing": "sedang bermain",
+            "sleep": "tidur", "sleeps": "tidur", "sleeping": "sedang tidur",
+            "get": "menjadi", "gets": "mendapat", "got": "mendapat",
+            "is": "adalah / sedang", "am": "adalah", "are": "adalah", "was": "adalah", "were": "adalah",
+            "can": "bisa", "cannot": "tidak bisa", "will": "akan", "must": "harus",
+            "does": "melakukan", "do": "melakukan", "did": "melakukan",
+            "missing": "hilang", "remaining": "tersisa", "stay": "tinggal", "stays": "tinggal",
+            "likes": "suka", "like": "suka", "loves": "sangat suka", "hates": "tidak suka",
+            "allergic": "alergi", "choose": "memilih", "chooses": "memilih",
+            "raining": "sedang hujan", "rain": "hujan",
+
+            // Kata Benda (Nouns)
+            "plate": "piring", "spoon": "sendok", "fork": "garpu", "cup": "cangkir", "glass": "gelas",
+            "bowl": "mangkuk", "knife": "pisau", "bottle": "botol", "pillow": "bantal",
+            "pen": "pulpen", "pencil": "pensil", "case": "kotak", "eraser": "penghapus",
+            "ruler": "penggaris", "book": "buku", "books": "buku-buku", "math": "matematika",
+            "notebook": "buku catatan", "paper": "kertas", "list": "daftar",
+            "apple": "apel", "apples": "apel", "banana": "pisang", "bananas": "pisang",
+            "orange": "jeruk", "oranges": "jeruk", "mango": "mangga", "milk": "susu",
+            "water": "air", "bread": "roti", "egg": "telur", "eggs": "telur",
+            "sugar": "gula", "salt": "garam", "flour": "tepung", "butter": "mentega",
+            "cake": "kue", "chocolate": "cokelat", "cheese": "keju", "rice": "nasi",
+            "coffee": "kopi", "tea": "teh", "juice": "jus", "drink": "minuman",
+            "menu": "menu", "clothes": "pakaian", "sky": "langit",
+            "umbrella": "payung", "raincoat": "jas hujan", "hat": "topi", "shoes": "sepatu",
+            "socks": "kaus kaki", "jacket": "jaket", "shirt": "kemeja", "key": "kunci",
+            "keys": "kunci-kunci", "wallet": "dompet", "phone": "ponsel", "money": "uang",
+            "ticket": "tiket", "tickets": "tiket", "camera": "kamera", "map": "peta",
+            "cat": "kucing", "dog": "anjing", "bird": "burung", "fish": "ikan",
+            "rabbit": "kelinci", "pet": "hewan peliharaan", "pets": "hewan peliharaan",
+            "car": "mobil", "bus": "bus", "train": "kereta", "bicycle": "sepeda", "bike": "sepeda",
+            "morning": "pagi", "afternoon": "siang/sore", "evening": "malam", "night": "malam",
+            "today": "hari ini", "tomorrow": "besok", "yesterday": "kemarin", "sunday": "hari Minggu",
+            "hour": "jam", "hours": "jam", "minutes": "menit", "time": "waktu", "o'clock": "tepat",
+            "color": "warna", "colors": "warna-warna", "item": "barang", "items": "barang / menu",
+            "gift": "hadiah", "birthday": "ulang tahun", "friend": "teman", "friends": "teman-teman",
+            "mother": "ibu", "father": "ayah", "sister": "saudara pr", "brother": "saudara lk",
+            "teacher": "guru", "student": "murid", "students": "murid-murid",
+            "weather": "cuaca", "sun": "matahari",
+
+            // Kata Sifat & Keterangan (Adjectives & Adverbs)
+            "red": "merah", "blue": "biru", "green": "hijau", "yellow": "kuning",
+            "black": "hitam", "white": "putih", "dark": "gelap",
+            "big": "besar", "small": "kecil", "heavy": "berat", "heavily": "deras",
+            "light": "ringan", "hot": "panas", "cold": "dingin", "fresh": "segar",
+            "fried": "goreng", "hungry": "lapar", "thirsty": "haus", "tired": "lelah",
+            "happy": "senang", "sad": "sedih", "angry": "marah", "late": "terlambat",
+            "early": "lebih awal", "fast": "cepat", "slow": "lambat", "new": "baru",
+            "old": "lama/tua", "empty": "kosong", "full": "penuh", "broken": "rusak",
+            "dirty": "kotor", "wet": "basah", "dry": "kering", "sunny": "cerah",
+            "rainy": "hujan", "cloudy": "berawan", "completely": "benar-benar",
+            "safely": "dengan aman", "now": "sekarang", "then": "lalu", "there": "di sana",
+            "first": "pertama", "second": "kedua", "third": "ketiga", "last": "terakhir",
+            "next": "berikutnya", "before": "sebelum", "after": "setelah",
+            "already": "sudah", "still": "masih", "only": "hanya", "also": "juga",
+            "too": "juga/terlalu", "very": "sangat", "always": "selalu", "never": "tidak pernah",
+            "same": "sama", "different": "berbeda",
+            "tall": "tinggi", "taller": "lebih tinggi", "tallest": "paling tinggi",
+            "short": "pendek", "shorter": "lebih pendek", "shortest": "paling pendek",
+            "older": "lebih tua", "oldest": "paling tua", "younger": "lebih muda", "youngest": "paling muda",
+
+            // Preposisi, Konjungsi, Angka & Kata Tanya
+            "a": "sebuah", "an": "sebuah", "the": "itu / tersebut", "of": "dari",
+            "and": "dan", "or": "atau", "but": "tetapi", "so": "jadi / sehingga",
+            "because": "karena", "however": "namun", "if": "jika", "when": "ketika",
+            "while": "sementara", "out": "keluar",
+            "to": "ke / untuk", "from": "dari", "in": "di dalam", "on": "di atas / pada",
+            "at": "di / pada", "with": "dengan", "without": "tanpa", "into": "ke dalam",
+            "under": "di bawah", "behind": "di belakang", "beside": "di samping",
+            "between": "di antara", "near": "dekat",
+            "what": "apa", "who": "siapa", "where": "di mana", "why": "mengapa",
+            "how": "bagaimana", "which": "yang mana", "whose": "milik siapa",
+            "many": "banyak", "much": "banyak", "more": "lebih banyak", "less": "lebih sedikit",
+            "one": "satu", "two": "dua", "three": "tiga", "four": "empat", "five": "lima",
+            "six": "enam", "seven": "tujuh", "eight": "delapan", "nine": "sembilan", "ten": "sepuluh",
+            "fifteen": "lima belas", "twenty": "dua puluh", "thirty": "tiga puluh", "forty-five": "empat puluh lima",
+            "not": "tidak", "no": "tidak ada", "yes": "ya", "except": "kecuali",
+            "siti's": "milik Siti", "agus's": "milik Agus", "rina's": "milik Rina",
+            "budi's": "milik Budi", "maya's": "milik Maya", "andi's": "milik Andi",
+            "tari's": "milik Tari", "lisa's": "milik Lisa", "kevin's": "milik Kevin"
+        };
+
+        // =========================================================================
+        // 2. DATA 12 SOAL CERITA LOGIKA BAHASA INGGRIS
+        // =========================================================================
+        const QUESTIONS = [
+            {
+                id: 1,
+                difficulty: "easy",
+                emoji: "🍽️",
+                title: "Daftar Barang Deni",
+                story: "Deni brings a plate and a spoon and goes to Siti's house to pick up a pen. On his list, Deni needs a plate, a spoon, a pen, and an eraser. Now Deni is going to Agus's house.",
+                question: "What does Deni want to take at Agus's house?",
+                options: [
+                    "A plate",
+                    "An eraser",
+                    "A spoon",
+                    "A pen"
+                ],
+                correctIndex: 1,
+                explanation: "Deni sudah membawa piring (plate) dan sendok (spoon), lalu mengambil pulpen (pen) di rumah Siti. Satu-satunya barang di daftarnya yang belum ada adalah penghapus (an eraser)."
+            },
+            {
+                id: 2,
+                difficulty: "easy",
+                emoji: "🌧️",
+                title: "Cuaca Pagi Ini",
+                story: "Look outside! The sky is dark and it is raining heavily. Rina wants to walk to the bakery to buy fresh bread, so she does not want her clothes to get wet.",
+                question: "What item must Rina bring with her?",
+                options: [
+                    "An umbrella",
+                    "A pencil",
+                    "A spoon",
+                    "A pillow"
+                ],
+                correctIndex: 0,
+                explanation: "Di luar sedang hujan deras (raining heavily) dan Rina tidak ingin bajunya basah (wet), jadi benda yang harus ia bawa adalah payung (an umbrella)."
+            },
+            {
+                id: 3,
+                difficulty: "easy",
+                emoji: "🍎",
+                title: "Keranjang Buah Budi",
+                story: "Budi has five red apples in his basket. On his way home, he gives two apples to his sister and eats one apple because he is hungry.",
+                question: "How many apples are remaining in Budi's basket?",
+                options: [
+                    "One apple",
+                    "Two apples",
+                    "Three apples",
+                    "Four apples"
+                ],
+                correctIndex: 1,
+                explanation: "Budi awalnya punya 5 apel. Ia memberikan 2 apel kepada adiknya (5 - 2 = 3) dan memakan 1 apel (3 - 1 = 2). Jadi tersisa 2 apel (two apples)."
+            },
+            {
+                id: 4,
+                difficulty: "easy",
+                emoji: "🐱",
+                title: "Hewan Peliharaan Maya",
+                story: "Maya has three pets at home: a cat, a dog, and a bird. The dog is sleeping under the table, and the bird is inside its cage. Maya is playing with the other pet on the sofa.",
+                question: "Which pet is Maya playing with?",
+                options: [
+                    "The dog",
+                    "The bird",
+                    "The cat",
+                    "The rabbit"
+                ],
+                correctIndex: 2,
+                explanation: "Maya punya kucing, anjing, dan burung. Anjing sedang tidur di bawah meja dan burung ada di dalam kandang, maka hewan lain yang sedang diajak bermain adalah kucing (the cat)."
+            },
+            {
+                id: 5,
+                difficulty: "medium",
+                emoji: "🎂",
+                title: "Bahan Kue Ibu",
+                story: "Mother wants to make a chocolate cake. She checks the kitchen table and finds flour, eggs, and sugar. However, the milk bottle is completely empty.",
+                question: "What does Mother need to buy at the store?",
+                options: [
+                    "Sugar",
+                    "Eggs",
+                    "Flour",
+                    "Milk"
+                ],
+                correctIndex: 3,
+                explanation: "Di meja dapur sudah tersedia tepung (flour), telur (eggs), dan gula (sugar). Namun botol susunya kosong (empty), sehingga Ibu harus membeli susu (milk)."
+            },
+            {
+                id: 6,
+                difficulty: "medium",
+                emoji: "🎒",
+                title: "Tas Sekolah Andi",
+                story: "Andi puts his math book, ruler, and pencil case into his bag. Before leaving, he takes out the math book because today is Sunday and there is no school.",
+                question: "What is inside Andi's bag now?",
+                options: [
+                    "Only a math book",
+                    "A ruler and a pencil case",
+                    "A math book and a ruler",
+                    "His bag is empty"
+                ],
+                correctIndex: 1,
+                explanation: "Andi memasukkan buku matematika, penggaris, dan kotak pensil, lalu mengeluarkan kembali buku matematikanya. Jadi yang tersisa di dalam tas adalah penggaris dan kotak pensil (a ruler and a pencil case)."
+            },
+            {
+                id: 7,
+                difficulty: "medium",
+                emoji: "🥤",
+                title: "Minuman Kesukaan",
+                story: "Tari, Lisa, and Kevin are at a cafe. Tari drinks hot tea. Kevin does not like coffee or tea, so he orders orange juice. Lisa orders the drink that Kevin hates.",
+                question: "What does Lisa order?",
+                options: [
+                    "Orange juice",
+                    "Hot tea",
+                    "Cold water",
+                    "Coffee"
+                ],
+                correctIndex: 3,
+                explanation: "Kevin tidak suka kopi atau teh. Tari sudah memesan teh panas (hot tea), sedangkan Lisa memesan minuman lain yang tidak disukai Kevin, yaitu kopi (coffee)."
+            },
+            {
+                id: 8,
+                difficulty: "medium",
+                emoji: "🔑",
+                title: "Kunci Rumah Hilang",
+                story: "Father cannot open the front door because his key is missing. He remembers putting the key in his jacket pocket, but his jacket is inside the locked car.",
+                question: "Where is Father's house key right now?",
+                options: [
+                    "In his bag",
+                    "On the table",
+                    "Inside the car",
+                    "At the office"
+                ],
+                correctIndex: 2,
+                explanation: "Kunci rumah ada di saku jaket Ayah, dan jaket tersebut berada di dalam mobil yang terkunci (inside the car)."
+            },
+            {
+                id: 9,
+                difficulty: "hard",
+                emoji: "📏",
+                title: "Siapa Paling Tinggi?",
+                story: "In the classroom, Budi is taller than Deni, and Agus is shorter than Deni. Siti is taller than Budi. The teacher asks the tallest student to clean the top of the whiteboard.",
+                question: "Who will clean the whiteboard?",
+                options: [
+                    "Budi",
+                    "Deni",
+                    "Agus",
+                    "Siti"
+                ],
+                correctIndex: 3,
+                explanation: "Urutan tinggi badan dari yang tertinggi: Siti > Budi > Deni > Agus. Karena guru meminta siswa paling tinggi (the tallest student), maka Siti yang akan membersihkannya."
+            },
+            {
+                id: 10,
+                difficulty: "hard",
+                emoji: "🚆",
+                title: "Jadwal Kereta Pagi",
+                story: "The train to Bandung leaves at eight in the morning. Kevin arrives at the station thirty minutes before the train leaves, while Lisa arrives fifteen minutes after Kevin.",
+                question: "When does Lisa arrive at the station?",
+                options: [
+                    "At seven thirty",
+                    "At seven forty-five",
+                    "At eight fifteen",
+                    "At eight o'clock"
+                ],
+                correctIndex: 1,
+                explanation: "Kereta berangkat pukul 08.00. Kevin tiba 30 menit sebelumnya (07.30), dan Lisa tiba 15 menit setelah Kevin, yaitu pukul 07.45 (seven forty-five)."
+            },
+            {
+                id: 11,
+                difficulty: "hard",
+                emoji: "🎁",
+                title: "Tiga Kotak Hadiah",
+                story: "There are three boxes: a red box, a blue box, and a green box. The camera is not in the red box. The blue box contains a book. Each box has only one item inside.",
+                question: "Which box contains the camera?",
+                options: [
+                    "The red box",
+                    "The blue box",
+                    "The green box",
+                    "None of them"
+                ],
+                correctIndex: 2,
+                explanation: "Kamera tidak ada di kotak merah, dan kotak biru sudah berisi buku. Karena tiap kotak berisi satu barang, kamera pasti ada di kotak hijau (the green box)."
+            },
+            {
+                id: 12,
+                difficulty: "hard",
+                emoji: "🥪",
+                title: "Makan Siang Tanpa Alergi",
+                story: "Rina is allergic to eggs and milk. At the restaurant, she sees three menu items: cheese bread, egg fried rice, and banana juice with water. She wants to eat or drink safely.",
+                question: "What can Rina safely choose?",
+                options: [
+                    "Cheese bread",
+                    "Egg fried rice",
+                    "Banana juice with water",
+                    "All of the menu items"
+                ],
+                correctIndex: 2,
+                explanation: "Rina alergi telur (egg) dan susu (milk). Keju terbuat dari susu dan nasi goreng memakai telur, jadi pilihan yang aman hanyalah jus pisang dengan air (banana juice with water)."
+            }
+        ];
+
+        // =========================================================================
+        // 3. STATE APLIKASI & LOGIKA TAP-TO-TRANSLATE
+        // =========================================================================
+        let state = {
+            selectedDifficulty: 'all',
+            activeQuestions: [],
+            currentIndex: 0,
+            score: 0,
+            answered: false,
+            activeWordElement: null, // Menyimpan elemen kata yang sedang diterjemahkan
+            userAnswers: []
+        };
+
+        // Memisahkan tanda baca di awal/akhir kata (contoh: "outside!" -> core: "outside", trailing: "!")
+        function splitPunctuation(token) {
+            const match = token.match(/^([^a-zA-Z0-9']*)([a-zA-Z0-9'-]+)([^a-zA-Z0-9']*)$/);
+            if (match) {
+                return {
+                    leading: match[1],
+                    core: match[2],
+                    trailing: match[3]
+                };
+            }
+            return { leading: '', core: token, trailing: '' };
+        }
+
+        // Mencari terjemahan kata di kamus secara cerdas (termasuk imbuhan)
+        function lookupTranslation(coreWord) {
+            const clean = coreWord.toLowerCase();
+
+            // 1. Pencocokan langsung
+            if (DICTIONARY[clean]) {
+                return DICTIONARY[clean];
+            }
+
+            // 2. Cek kepemilikan ('s)
+            if (clean.endsWith("'s")) {
+                const base = clean.slice(0, -2);
+                if (DICTIONARY[base]) {
+                    return "milik " + DICTIONARY[base];
+                }
+            }
+
+            // 3. Cek akhiran jamak / kata kerja orang ketiga (-s / -es)
+            if (clean.endsWith("ies") && DICTIONARY[clean.slice(0, -3) + "y"]) {
+                return DICTIONARY[clean.slice(0, -3) + "y"];
+            }
+            if (clean.endsWith("es") && DICTIONARY[clean.slice(0, -2)]) {
+                return DICTIONARY[clean.slice(0, -2)];
+            }
+            if (clean.endsWith("s") && DICTIONARY[clean.slice(0, -1)]) {
+                return DICTIONARY[clean.slice(0, -1)];
+            }
+
+            // 4. Cek akhiran -ing (sedang ...)
+            if (clean.endsWith("ing")) {
+                const stem = clean.slice(0, -3);
+                if (DICTIONARY[stem]) return "sedang " + DICTIONARY[stem];
+                if (DICTIONARY[stem + "e"]) return "sedang " + DICTIONARY[stem + "e"];
+            }
+
+            // 5. Cek akhiran lampau (-ed)
+            if (clean.endsWith("ed")) {
+                const stem = clean.slice(0, -2);
+                if (DICTIONARY[stem]) return DICTIONARY[stem];
+                if (DICTIONARY[stem + "e"]) return DICTIONARY[stem + "e"];
+            }
+
+            // 6. Cek akhiran kata keterangan (-ly)
+            if (clean.endsWith("ly")) {
+                const stem = clean.slice(0, -2);
+                if (DICTIONARY[stem]) return "dengan " + DICTIONARY[stem];
+            }
+
+            // Fallback bersih tanpa label "(arti: ...)" jika ada kata baru
+            return coreWord;
+        }
+
+        // Mengubah string kalimat menjadi elemen HTML berisi token kata yang bisa diklik
+        function renderInteractiveText(container, text) {
+            container.innerHTML = '';
+            const words = text.split(/\s+/);
+
+            words.forEach((rawToken, idx) => {
+                const { leading, core, trailing } = splitPunctuation(rawToken);
+                const translation = lookupTranslation(core);
+
+                // Tanda baca pembuka (jika ada)
+                if (leading) {
+                    container.appendChild(document.createTextNode(leading));
+                }
+
+                // Elemen kata yang dapat diklik
+                const span = document.createElement('span');
+                span.className = 'word-token';
+                span.textContent = core;
+                span.dataset.original = core;
+                span.dataset.translation = translation;
+                span.dataset.isTranslated = 'false';
+
+                // Event listener klik/tap pada kata
+                span.addEventListener('click', (e) => {
+                    e.stopPropagation(); // Mencegah klik kata di tombol pilihan ganda langsung memilih jawaban
+                    handleWordTap(span);
+                });
+
+                container.appendChild(span);
+
+                // Tanda baca penutup (menempel langsung pada kata tanpa spasi)
+                if (trailing) {
+                    container.appendChild(document.createTextNode(trailing));
+                }
+
+                // Spasi antar kata
+                if (idx < words.length - 1) {
+                    container.appendChild(document.createTextNode(' '));
+                }
+            });
+        }
+
+        // Perilaku Wajib Tap-to-Translate:
+        // - Ketuk kata A -> berubah menjadi bahasa Indonesia (highlight).
+        // - Ketuk kata B -> kata B berubah menjadi bahasa Indonesia, kata A OTOMATIS kembali ke bahasa Inggris.
+        // - Ketuk kata A lagi -> kata A kembali ke bahasa Inggris.
+        function handleWordTap(wordEl) {
+            const isCurrentlyTranslated = wordEl.dataset.isTranslated === 'true';
+
+            // 1. Jika ada kata lain yang sedang aktif diterjemahkan, kembalikan ke bahasa Inggris
+            if (state.activeWordElement && state.activeWordElement !== wordEl) {
+                revertWordToEnglish(state.activeWordElement);
+            }
+
+            // 2. Toggle kata yang baru dipencet
+            if (isCurrentlyTranslated) {
+                revertWordToEnglish(wordEl);
+                state.activeWordElement = null;
+                toggleResetButton(false);
+            } else {
+                // Ubah teks menjadi terjemahan bahasa Indonesia
+                wordEl.textContent = wordEl.dataset.translation;
+                wordEl.dataset.isTranslated = 'true';
+                wordEl.classList.add('translated');
+                state.activeWordElement = wordEl;
+                toggleResetButton(true);
+            }
+        }
+
+        // Mengembalikan satu elemen kata ke teks bahasa Inggris aslinya
+        function revertWordToEnglish(wordEl) {
+            if (!wordEl) return;
+            wordEl.textContent = wordEl.dataset.original;
+            wordEl.dataset.isTranslated = 'false';
+            wordEl.classList.remove('translated');
+        }
+
+        // Mereset kata aktif (dipanggil saat pindah soal atau klik tombol Reset)
+        function clearActiveTranslation() {
+            if (state.activeWordElement) {
+                revertWordToEnglish(state.activeWordElement);
+                state.activeWordElement = null;
+            }
+            toggleResetButton(false);
+        }
+
+        function toggleResetButton(show) {
+            const btn = document.getElementById('btn-reset-word');
+            if (btn) {
+                if (show) btn.classList.remove('hidden');
+                else btn.classList.add('hidden');
+            }
+        }
+
+        // =========================================================================
+        // 4. NAVIGASI & ALUR PERMAINAN KUIS
+        // =========================================================================
+        function showScreen(screenId) {
+            ['screen-home', 'screen-quiz', 'screen-result'].forEach(id => {
+                document.getElementById(id).classList.add('hidden');
+            });
+            document.getElementById(screenId).classList.remove('hidden');
+        }
+
+        function goHome() {
+            clearActiveTranslation();
+            showScreen('screen-home');
+        }
+
+        function startQuiz(difficulty) {
+            state.selectedDifficulty = difficulty;
+            if (difficulty === 'all') {
+                state.activeQuestions = [...QUESTIONS];
+            } else {
+                state.activeQuestions = QUESTIONS.filter(q => q.difficulty === difficulty);
+            }
+
+            state.currentIndex = 0;
+            state.score = 0;
+            state.userAnswers = [];
+            clearActiveTranslation();
+
+            document.getElementById('score-display').textContent = '0';
+            showScreen('screen-quiz');
+            renderCurrentQuestion();
+        }
+
+        function restartCurrentQuiz() {
+            startQuiz(state.selectedDifficulty);
+        }
+
+        function renderCurrentQuestion() {
+            clearActiveTranslation();
+            state.answered = false;
+
+            const q = state.activeQuestions[state.currentIndex];
+            const total = state.activeQuestions.length;
+
+            // Update Header & Progress Bar
+            document.getElementById('question-counter').textContent = `Soal ${state.currentIndex + 1} / ${total}`;
+            const progressPercent = ((state.currentIndex + 1) / total) * 100;
+            document.getElementById('progress-bar').style.width = `${progressPercent}%`;
+
+            // Update Badge Kesulitan
+            const diffBadge = document.getElementById('difficulty-badge');
+            if (q.difficulty === 'easy') {
+                diffBadge.textContent = 'Pemula';
+                diffBadge.className = 'px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-700 text-[10px] font-bold uppercase tracking-wide';
+            } else if (q.difficulty === 'medium') {
+                diffBadge.textContent = 'Menengah';
+                diffBadge.className = 'px-2 py-0.5 rounded-md bg-amber-100 text-amber-700 text-[10px] font-bold uppercase tracking-wide';
+            } else {
+                diffBadge.textContent = 'Detektif';
+                diffBadge.className = 'px-2 py-0.5 rounded-md bg-rose-100 text-rose-700 text-[10px] font-bold uppercase tracking-wide';
+            }
+
+            // Update Kartu Cerita & Pertanyaan
+            document.getElementById('story-emoji').textContent = q.emoji;
+            document.getElementById('story-title').textContent = q.title;
+            renderInteractiveText(document.getElementById('story-text'), q.story);
+            renderInteractiveText(document.getElementById('question-text'), q.question);
+
+            // Render 4 Pilihan Ganda (A, B, C, D) yang kata-katanya juga bisa diklik
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = '';
+            const letters = ['A', 'B', 'C', 'D'];
+
+            q.options.forEach((optText, index) => {
+                const btn = document.createElement('div');
+                btn.id = `option-btn-${index}`;
+                btn.setAttribute('role', 'button');
+                btn.setAttribute('tabindex', '0');
+                btn.className = 'w-full p-3.5 rounded-2xl border-2 border-slate-200 bg-white hover:border-brand-500 hover:bg-brand-50/40 transition-all flex items-center gap-3.5 cursor-pointer select-none shadow-sm';
+
+                // Badge Huruf (A/B/C/D)
+                const badge = document.createElement('div');
+                badge.id = `option-badge-${index}`;
+                badge.className = 'w-9 h-9 rounded-xl bg-slate-100 text-slate-700 font-display font-bold text-sm flex items-center justify-center shrink-0 transition-colors';
+                badge.textContent = letters[index];
+
+                // Teks Pilihan Ganda Interaktif
+                const textWrapper = document.createElement('div');
+                textWrapper.className = 'flex-1 text-[15px] font-semibold text-slate-800 leading-snug';
+                renderInteractiveText(textWrapper, optText);
+
+                btn.appendChild(badge);
+                btn.appendChild(textWrapper);
+
+                // Klik area tombol untuk memilih jawaban
+                btn.addEventListener('click', () => selectOption(index));
+
+                optionsContainer.appendChild(btn);
+            });
+
+            // Sembunyikan Feedback & Tombol Lanjut
+            document.getElementById('feedback-box').classList.add('hidden');
+            document.getElementById('bottom-action-bar').classList.add('hidden');
+
+            // Scroll ke atas
+            document.getElementById('quiz-scroll-area').scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function selectOption(chosenIndex) {
+            if (state.answered) return;
+            state.answered = true;
+
+            const q = state.activeQuestions[state.currentIndex];
+            const isCorrect = chosenIndex === q.correctIndex;
+
+            if (isCorrect) {
+                state.score += 10;
+                document.getElementById('score-display').textContent = state.score;
+            }
+
+            // Simpan ke riwayat hasil
+            state.userAnswers.push({
+                title: q.title,
+                emoji: q.emoji,
+                isCorrect: isCorrect,
+                chosenText: q.options[chosenIndex],
+                correctText: q.options[q.correctIndex]
+            });
+
+            // Perbarui tampilan visual semua tombol pilihan ganda
+            q.options.forEach((_, idx) => {
+                const btn = document.getElementById(`option-btn-${idx}`);
+                const badge = document.getElementById(`option-badge-${idx}`);
+                btn.classList.remove('hover:border-brand-500', 'hover:bg-brand-50/40', 'cursor-pointer');
+
+                if (idx === q.correctIndex) {
+                    // Jawaban yang benar selalu diberi warna hijau
+                    btn.className = 'w-full p-3.5 rounded-2xl border-2 border-emerald-500 bg-emerald-50 transition-all flex items-center gap-3.5 shadow-sm';
+                    badge.className = 'w-9 h-9 rounded-xl bg-emerald-600 text-white font-display font-bold text-sm flex items-center justify-center shrink-0';
+                    badge.innerHTML = '✓';
+                } else if (idx === chosenIndex && !isCorrect) {
+                    // Jawaban salah yang dipilih pengguna diberi warna merah
+                    btn.className = 'w-full p-3.5 rounded-2xl border-2 border-rose-500 bg-rose-50 transition-all flex items-center gap-3.5 shadow-sm';
+                    badge.className = 'w-9 h-9 rounded-xl bg-rose-600 text-white font-display font-bold text-sm flex items-center justify-center shrink-0';
+                    badge.innerHTML = '✕';
+                } else {
+                    // Pilihan lainnya diredupkan sedikit
+                    btn.className = 'w-full p-3.5 rounded-2xl border-2 border-slate-100 bg-slate-50/60 opacity-65 transition-all flex items-center gap-3.5';
+                }
+            });
+
+            // Tampilkan Kotak Feedback & Penjelasan
+            const feedbackBox = document.getElementById('feedback-box');
+            const feedbackIcon = document.getElementById('feedback-icon');
+            const feedbackTitle = document.getElementById('feedback-title');
+            const feedbackExplanation = document.getElementById('feedback-explanation');
+
+            feedbackBox.classList.remove('hidden');
+            if (isCorrect) {
+                feedbackBox.className = 'rounded-2xl p-4 border border-emerald-200 bg-emerald-50/90 text-emerald-950 animate-slide-up';
+                feedbackIcon.className = 'w-8 h-8 rounded-full bg-emerald-600 text-white flex items-center justify-center shrink-0 text-sm font-bold mt-0.5';
+                feedbackIcon.textContent = '✓';
+                feedbackTitle.textContent = 'Jawaban Benar! (+10 Poin)';
+                feedbackTitle.className = 'font-display font-bold text-base text-emerald-800 mb-1';
+            } else {
+                feedbackBox.className = 'rounded-2xl p-4 border border-rose-200 bg-rose-50/90 text-rose-950 animate-slide-up';
+                feedbackIcon.className = 'w-8 h-8 rounded-full bg-rose-600 text-white flex items-center justify-center shrink-0 text-sm font-bold mt-0.5';
+                feedbackIcon.textContent = '!';
+                feedbackTitle.textContent = 'Kurang Tepat!';
+                feedbackTitle.className = 'font-display font-bold text-base text-rose-800 mb-1';
+            }
+            feedbackExplanation.textContent = q.explanation;
+
+            // Tampilkan Tombol Soal Berikutnya / Lihat Hasil
+            const bottomBar = document.getElementById('bottom-action-bar');
+            const btnNextText = document.getElementById('btn-next-text');
+            bottomBar.classList.remove('hidden');
+
+            if (state.currentIndex < state.activeQuestions.length - 1) {
+                btnNextText.textContent = 'Soal Berikutnya';
+            } else {
+                btnNextText.textContent = 'Lihat Hasil Akhir';
+            }
+
+            // Auto-scroll lembut ke bagian feedback agar terlihat jelas di layar HP kecil
+            setTimeout(() => {
+                const scrollArea = document.getElementById('quiz-scroll-area');
+                scrollArea.scrollTo({ top: scrollArea.scrollHeight, behavior: 'smooth' });
+            }, 80);
+        }
+
+        function nextQuestion() {
+            if (state.currentIndex < state.activeQuestions.length - 1) {
+                state.currentIndex++;
+                renderCurrentQuestion();
+            } else {
+                showResultScreen();
+            }
+        }
+
+        function showResultScreen() {
+            clearActiveTranslation();
+            showScreen('screen-result');
+
+            const total = state.activeQuestions.length;
+            const correctCount = state.userAnswers.filter(a => a.isCorrect).length;
+            const accuracy = Math.round((correctCount / total) * 100);
+
+            document.getElementById('final-score').textContent = state.score;
+            document.getElementById('final-correct').textContent = `${correctCount}/${total}`;
+            document.getElementById('final-accuracy').textContent = `${accuracy}%`;
+
+            // Sesuaikan pesan dan trofi berdasarkan akurasi
+            const trophy = document.getElementById('result-trophy');
+            const heading = document.getElementById('result-heading');
+            const subtext = document.getElementById('result-subtext');
+
+            if (accuracy >= 80) {
+                trophy.textContent = '🏆';
+                heading.textContent = 'Detektif Bahasa Hebat!';
+                subtext.textContent = 'Kamu memahami cerita bahasa Inggris dan logikanya dengan sangat baik.';
+            } else if (accuracy >= 50) {
+                trophy.textContent = '🌟';
+                heading.textContent = 'Kerja Bagus!';
+                subtext.textContent = 'Terus berlatih mengetuk kata-kata baru untuk memperkaya kosakatamu.';
+            } else {
+                trophy.textContent = '💪';
+                heading.textContent = 'Ayo Coba Lagi!';
+                subtext.textContent = 'Jangan ragu untuk mengetuk setiap kata sulit di dalam cerita sebelum menjawab.';
+            }
+
+            // Render daftar ringkasan jawaban
+            const reviewList = document.getElementById('result-review-list');
+            reviewList.innerHTML = '';
+
+            state.userAnswers.forEach((item, idx) => {
+                const row = document.createElement('div');
+                row.className = `p-3 rounded-2xl border flex items-center justify-between gap-3 ${
+                    item.isCorrect ? 'bg-emerald-50/60 border-emerald-200' : 'bg-rose-50/60 border-rose-200'
+                }`;
+
+                row.innerHTML = `
+                    <div class="flex items-center gap-2.5 min-w-0">
+                        <span class="text-lg shrink-0">${item.emoji}</span>
+                        <div class="truncate">
+                            <div class="text-xs font-bold text-slate-800 truncate">${idx + 1}. ${item.title}</div>
+                            <div class="text-[11px] text-slate-500 truncate">
+                                ${item.isCorrect ? `Benar: ${item.correctText}` : `Jawabanmu: ${item.chosenText} • Benar: ${item.correctText}`}
+                            </div>
+                        </div>
+                    </div>
+                    <span class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${
+                        item.isCorrect ? 'bg-emerald-600 text-white' : 'bg-rose-600 text-white'
+                    }">
+                        ${item.isCorrect ? '✓' : '✕'}
+                    </span>
+                `;
+                reviewList.appendChild(row);
+            });
+        }
+
+        // =========================================================================
+        // 5. INISIALISASI SAAT HALAMAN DIMUAT
+        // =========================================================================
+        window.onload = function () {
+            // Render kalimat demo interaktif di halaman utama
+            const demoContainer = document.getElementById('demo-sentence');
+            if (demoContainer) {
+                renderInteractiveText(demoContainer, "Deni brings a plate and a spoon to Siti's house.");
+                // Sesuaikan gaya token kata di dalam banner gelap
+                demoContainer.querySelectorAll('.word-token').forEach(el => {
+                    el.style.borderBottomColor = 'rgba(255,255,255,0.45)';
+                });
+            }
+        };
+    </script>
+</body>
+</html>
